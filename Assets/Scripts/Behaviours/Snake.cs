@@ -10,6 +10,7 @@ namespace Behaviours
         [SerializeField] private Camera gameCamera;
         [SerializeField] private Segment segmentPrefab;
         
+        [SerializeField] private bool debug = true;
         [SerializeField] private float segmentSize = 1f;
         [SerializeField] private int segmentCount = 48;
         [SerializeField] private float linkSize = 1f;
@@ -17,13 +18,17 @@ namespace Behaviours
         [SerializeField] private float moveSpeed = 8f;
         
         private readonly List<Segment> _segments = new();
-        // private SnakeLineRenderer _lineRenderer;
+        private LineRenderer _lineRenderer;
         // private SnakeMeshBuilder _meshBuilder;
         
         private Segment Head => _segments[0]; 
         
         private void Start()
         {
+            GetComponents();
+            if (debug)
+                DebugSetup();
+            
             for (int i = 0; i < segmentCount; i++)
             {
                 var segment = Instantiate(segmentPrefab, transform);
@@ -37,8 +42,9 @@ namespace Behaviours
         {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
             Vector3 worldPos = gameCamera.ScreenToWorldPoint(
-                new Vector3(pointerPos.x, pointerPos.y, 10f) // 10f = distance from camera for orthographic
+                new Vector3(pointerPos.x, pointerPos.y, 0f)
             );
+            worldPos.z = 0f;
             
             Head.transform.position = Vector3.Lerp(
                 Head.transform.position, 
@@ -47,6 +53,13 @@ namespace Behaviours
             );
             
             ResolveConstraints();
+            if (debug)
+                DebugUpdate();
+        }
+
+        private void GetComponents()
+        {
+            _lineRenderer = GetComponent<LineRenderer>();
         }
 
         private void ResolveConstraints()
@@ -59,6 +72,24 @@ namespace Behaviours
                     linkSize
                 );
             }
+        }
+
+        private void UpdateLine()
+        {
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                _lineRenderer.SetPosition(i, _segments[i].transform.position);
+            } 
+        }
+
+        private void DebugSetup()
+        {
+            _lineRenderer.positionCount = segmentCount;
+        }
+
+        private void DebugUpdate()
+        {
+            UpdateLine();
         }
     }
 }

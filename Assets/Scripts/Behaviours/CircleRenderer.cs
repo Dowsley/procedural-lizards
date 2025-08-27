@@ -26,5 +26,10 @@ namespace Behaviours
                 angle += 2f * Mathf.PI / segments;
             }
         }
+
+        public void Clear()
+        {
+            _lineRenderer.positionCount = 0;
+        }
     }
 }

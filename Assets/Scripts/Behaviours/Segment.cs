@@ -15,5 +15,10 @@ namespace Behaviours
         {
             _circleRenderer.DrawCircle(radius);
         }
+
+        public void Clear()
+        {
+            _circleRenderer.Clear();
+        }
     }
 }
