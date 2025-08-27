@@ -5,10 +5,10 @@ using UnityEngine.InputSystem;
 
 namespace Behaviours
 {
-    public class SnakeController : MonoBehaviour
+    public class Snake : MonoBehaviour
     {
         [SerializeField] private Camera gameCamera;
-        [SerializeField] private CircleRenderer segmentPrefab;
+        [SerializeField] private Segment segmentPrefab;
         
         [SerializeField] private float segmentSize = 1f;
         [SerializeField] private int segmentCount = 48;
@@ -16,11 +16,11 @@ namespace Behaviours
         [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
         [SerializeField] private float moveSpeed = 8f;
         
-        private List<CircleRenderer> _segments = new();
+        private readonly List<Segment> _segments = new();
         // private SnakeLineRenderer _lineRenderer;
         // private SnakeMeshBuilder _meshBuilder;
         
-        private CircleRenderer Head => _segments[0]; 
+        private Segment Head => _segments[0]; 
         
         private void Start()
         {
@@ -53,7 +53,7 @@ namespace Behaviours
         {
             for (int i = 1; i < _segments.Count; i++)
             {
-                _segments[i].transform.position = Utils.Constraints.ConstrainDistance(
+                _segments[i].transform.position = Utils.Constraints.BasicDistanceConstraint(
                     _segments[i].transform.position,
                     _segments[i-1].transform.position,
                     linkSize

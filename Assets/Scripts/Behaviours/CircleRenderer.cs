@@ -4,7 +4,7 @@ namespace Behaviours
 {
     public class CircleRenderer : MonoBehaviour
     {
-        [SerializeField] public int segments = 100;
+        [SerializeField] private int segments = 100;
         
         private LineRenderer _lineRenderer;
 
