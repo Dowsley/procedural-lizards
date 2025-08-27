@@ -1,24 +1,24 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Behaviours
 {
     public class Segment : MonoBehaviour
     {
-        private CircleRenderer _circleRenderer;
+        [SerializeField] private CircleRenderer innerCircleRenderer;
+        [SerializeField] private CircleRenderer outerCircleRenderer;
         
-        private void Awake()
-        {
-            _circleRenderer = GetComponent<CircleRenderer>();
-        }
 
         public void DrawCircle(float radius)
         {
-            _circleRenderer.DrawCircle(radius);
+            outerCircleRenderer.DrawCircle(radius);
+            innerCircleRenderer.DrawCircle(radius*0.2f);
         }
 
         public void Clear()
         {
-            _circleRenderer.Clear();
+            outerCircleRenderer.Clear();
+            innerCircleRenderer.Clear();
         }
     }
 }
