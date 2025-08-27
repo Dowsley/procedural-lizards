@@ -14,7 +14,7 @@ namespace Behaviours
         [SerializeField] private float segmentSize = 1f;
         [SerializeField] private int segmentCount = 48;
         [SerializeField] private float linkSize = 1f;
-        [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
+        // [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
         [SerializeField] private float moveSpeed = 8f;
         
         private readonly List<Segment> _segments = new();
