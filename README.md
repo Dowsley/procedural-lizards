@@ -8,5 +8,6 @@ Little happy project.
 - [ ] Add color and texturing
 - [ ] Add eyes
 - [ ] Add breathing
+- [ ] Add dancing
 - [ ] Add interaction
 - [ ] Experiment with more complex shapes, like using Meshes

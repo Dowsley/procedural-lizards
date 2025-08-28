@@ -18,6 +18,7 @@ namespace Behaviours
         [SerializeField] private float segmentRadiusSize = 1f;
         [SerializeField] private AnimationCurve bodyWidthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0.2f);
         [SerializeField] private Gradient colorGradient = new Gradient();
+        [SerializeField] private float gradientScrollSpeed = 0f;
 
         [Header("Chain")]
         [SerializeField] private int segmentCount = 48;
@@ -29,6 +30,7 @@ namespace Behaviours
         
         private readonly List<Segment> _segments = new();
         private LineRenderer _debugLineRenderer;
+        private float _gradientOffset;
         
         private Segment Head => _segments[0]; 
         
@@ -53,10 +55,11 @@ namespace Behaviours
             {
                 var segment = Instantiate(segmentPrefab, transform);
                 segment.transform.position = Vector3.right * linkSize * i;
-                float t = segmentCount > 1 ? (float)i / (segmentCount - 1) : 0f;
-                float radius = bodyWidthCurve.Evaluate(t) * segmentRadiusSize;
+                float baseT = (float)i / (segmentCount - 1);
+                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
                 segment.DrawCircle(radius, debug);
-                segment.SetOuterFillColor(colorGradient.Evaluate(t));
+                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
+                segment.SetOuterFillColor(colorGradient.Evaluate(tColor));
                 
                 // Head on top (the highest order), tail below
                 int order = segmentCount - 1 - i;
@@ -80,6 +83,17 @@ namespace Behaviours
             );
             
             ResolveConstraints();
+            if (gradientScrollSpeed != 0f)
+            {
+                _gradientOffset = Mathf.Repeat(_gradientOffset + gradientScrollSpeed * Time.deltaTime, 1f);
+                // Reapply colors quickly (cheap)
+                for (int i = 0; i < _segments.Count; i++)
+                {
+                    float baseT = (float)i / (segmentCount - 1);
+                    float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
+                    _segments[i].SetOuterFillColor(colorGradient.Evaluate(tColor));
+                }
+            }
             Render();
         }
 
