@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Behaviours
 {
@@ -9,16 +8,30 @@ namespace Behaviours
         [SerializeField] private CircleRenderer outerCircleRenderer;
         
 
-        public void DrawCircle(float radius)
+        public void DrawCircle(float radius, bool debugInnerCircle = false)
         {
+            outerCircleRenderer.SetOutlineEnabled(debugInnerCircle);
+            outerCircleRenderer.SetFillEnabled(!debugInnerCircle);
             outerCircleRenderer.DrawCircle(radius);
-            innerCircleRenderer.DrawCircle(radius*0.2f);
+            if (debugInnerCircle)
+                innerCircleRenderer.DrawCircle(radius * 0.2f);
         }
 
         public void Clear()
         {
             outerCircleRenderer.Clear();
             innerCircleRenderer.Clear();
+        }
+
+        public void SetOuterFillColor(Color color)
+        {
+            outerCircleRenderer.SetFillColor(color);
+        }
+
+        public void SetSortingOrder(int order)
+        {
+            outerCircleRenderer.SetSortingOrder(order);
+            innerCircleRenderer.SetSortingOrder(order + 1);
         }
     }
 }
