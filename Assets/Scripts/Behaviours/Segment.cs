@@ -12,8 +12,11 @@ namespace Behaviours
         [SerializeField] private Color outerCircleDebugColor = Color.white;
         [SerializeField] private Color innerCircleDebugColor = Color.red;
 
+        private Color _color;
+
         public void Render(float radius, Color color, bool debug = false)
         {
+            _color = color;
             var fillOuter = !debug;
             outerCircleRenderer.Render(
                 radius,
@@ -25,9 +28,15 @@ namespace Behaviours
                 innerCircleRenderer.Render(radius * 0.2f, innerCircleDebugColor, true);
         }
         
-        public void SetColor(Color color)
+        public void SetColor(Color newColor)
         {
-            outerCircleRenderer.SetColor(color);
+            _color = newColor;
+            outerCircleRenderer.SetColor(newColor);
+        }
+
+        public Color GetColor()
+        {
+            return _color;
         }
 
         public void SetSortingOrder(int order)

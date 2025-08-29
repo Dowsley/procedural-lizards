@@ -4,10 +4,13 @@ Little happy project.
 
 ## TODO
 - [X] Add graphics: Shape and colors
-- [ ] Add 1-jointed legs using FABRIK
-- [ ] Add color and texturing
-- [ ] Add eyes
+- [X] Add 1-jointed legs
+- [ ] Add eyes and frills
+- [ ] Add randomization
+- [ ] Add shadow
 - [ ] Add breathing
 - [ ] Add dancing
 - [ ] Add interaction
-- [ ] Experiment with more complex shapes, like using Meshes
+  - [ ] Player
+  - [ ] Environment
+

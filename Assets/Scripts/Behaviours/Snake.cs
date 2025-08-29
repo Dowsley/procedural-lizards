@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,7 +17,7 @@ namespace Behaviours
         [SerializeField] private bool debug = true;
         [SerializeField] private float segmentRadiusSize = 1f;
         [SerializeField] private AnimationCurve bodyWidthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0.2f);
-        [SerializeField] private Gradient colorGradient = new Gradient();
+        [SerializeField] private Gradient colorGradient = new();
         [SerializeField] private float gradientScrollSpeed = 0f;
 
         [Header("Chain")]
@@ -25,24 +26,86 @@ namespace Behaviours
         // [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
         
         [Header("Leg")]
+        [SerializeField] private float lowerLegRatio = 0.9f; // Compared to upper
         [SerializeField] private float legWidth = 0.1f;
         [SerializeField] private float legLength = 1f;
         [SerializeField] private float legPawRadius = 0.2f;
+        [SerializeField] private float legStepThreshold = 0.35f;
+        [SerializeField] private float legExtraStrideOffset = 0.5f;
+        [SerializeField] private float legStepSpeed = 5f;
         
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 8f;
+        [SerializeField] private float maxHeadSpeed = 12f;
         
         private readonly List<Segment> _segments = new();
         private LineRenderer _debugLineRenderer;
         private float _gradientOffset;
-        private readonly List<Leg> _legs = new();
+        
+        private readonly List<Leg> _legs = new(); // upperLeft, lowerLeft, lowerRight, upperRight
+        private Leg UpperLeftLeg => _legs[0];
+        private Leg UpperRightLeg => _legs[1];
+        private Leg LowerLeftLeg => _legs[2];
+        private Leg LowerRightLeg => _legs[3];
         
         private Segment Head => _segments[0]; 
         
         private void Start()
         {
-            GetComponents();
-            Setup();
+            _debugLineRenderer = GetComponent<LineRenderer>();
+            _debugLineRenderer.enabled = debug;
+            _debugLineRenderer.positionCount = debug ? segmentCount : 0;
+            
+            // Segments
+            for (int i = 0; i < segmentCount; i++)
+            {
+                var segment = Instantiate(segmentPrefab, transform);
+                segment.transform.position = Vector3.right * linkSize * i;
+                float baseT = (float)i / (segmentCount - 1);
+                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
+                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
+                var color = colorGradient.Evaluate(tColor);
+                segment.Render(radius, color, debug);
+                
+                // Head on top (the highest order), tail below
+                int order = segmentCount - 1 - i;
+                segment.SetSortingOrder(order);
+                _segments.Add(segment);
+            }
+
+            // Legs
+            for (int i = 0; i < 4; i++)
+            {
+                var leg = Instantiate(legPrefab, transform);
+                leg.width = legWidth;
+                leg.length = i < 2 ? legLength : legLength*lowerLegRatio;
+                leg.pawRadius = legPawRadius;
+                leg.threshold = legStepThreshold;
+                leg.speed = legStepSpeed;
+                leg.extraStrideOffset = legExtraStrideOffset;
+                _legs.Add(leg);
+            }
+
+            int frontIdx = Mathf.Clamp((int)(segmentCount * 0.1f), 0, segmentCount - 2);
+            int backIdx = Mathf.Clamp((int)(segmentCount * 0.35f), 0, segmentCount - 2);
+
+            UpperLeftLeg.anchor = _segments[frontIdx];
+            UpperRightLeg.anchor = _segments[frontIdx];
+            LowerLeftLeg.anchor = _segments[backIdx];
+            LowerRightLeg.anchor = _segments[backIdx];
+
+            UpperLeftLeg.forwardReference = _segments[frontIdx + 1];
+            UpperRightLeg.forwardReference = _segments[frontIdx + 1];
+            LowerLeftLeg.forwardReference = _segments[backIdx + 1];
+            LowerRightLeg.forwardReference = _segments[backIdx + 1];
+
+            UpperLeftLeg.isRight = false;
+            LowerLeftLeg.isRight = false;
+            UpperRightLeg.isRight = true;
+            LowerRightLeg.isRight = true;
+
+            foreach (var leg in _legs)
+                leg.Initialize();
         }
 
         private void Update()
@@ -53,62 +116,36 @@ namespace Behaviours
             );
             worldPos.z = 0f;
             
-            Head.transform.position = Vector3.Lerp(
-                Head.transform.position, 
-                worldPos, 
+            var currentHeadPos = Head.transform.position;
+            var smoothedTarget = Vector3.Lerp(
+                currentHeadPos,
+                worldPos,
                 moveSpeed * Time.deltaTime
             );
+            var step = smoothedTarget - currentHeadPos;
+            float maxStep = maxHeadSpeed * Time.deltaTime;
+            if (step.magnitude > maxStep)
+                smoothedTarget = currentHeadPos + step.normalized * maxStep;
+
+            Head.transform.position = smoothedTarget;
             
             ResolveConstraints();
             if (gradientScrollSpeed != 0f)
-            {
-                _gradientOffset = Mathf.Repeat(_gradientOffset + gradientScrollSpeed * Time.deltaTime, 1f);
-                // Reapply colors quickly (cheap)
-                for (int i = 0; i < _segments.Count; i++)
-                {
-                    float baseT = (float)i / (segmentCount - 1);
-                    float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                    _segments[i].SetColor(colorGradient.Evaluate(tColor));
-                }
-            }
+                MoveGradient();
             
             if (debug)
                 UpdateDebugLine();
         }
 
-        private void GetComponents()
+        private void MoveGradient()
         {
-            _debugLineRenderer = GetComponent<LineRenderer>();
-        }
-
-        private void Setup()
-        {
-            if (debug)
+            _gradientOffset = Mathf.Repeat(_gradientOffset + gradientScrollSpeed * Time.deltaTime, 1f);
+            for (int i = 0; i < _segments.Count; i++)
             {
-                _debugLineRenderer.enabled = true;
-                _debugLineRenderer.positionCount = segmentCount;
-                _debugLineRenderer.numCornerVertices = 8;
-                _debugLineRenderer.numCapVertices = 8;
-            }
-            else
-            {
-                _debugLineRenderer.positionCount = 0;
-                _debugLineRenderer.enabled = false;
-            }
-            
-            for (int i = 0; i < segmentCount; i++)
-            {
-                var segment = Instantiate(segmentPrefab, transform);
-                segment.transform.position = Vector3.right * linkSize * i;
                 float baseT = (float)i / (segmentCount - 1);
-                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
                 float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                segment.Render(radius, colorGradient.Evaluate(tColor), debug);
-                
-                // Head on top (the highest order), tail below
-                int order = segmentCount - 1 - i;
-                segment.SetSortingOrder(order);
-                _segments.Add(segment);
+                var color = colorGradient.Evaluate(tColor);
+                _segments[i].SetColor(color);
             }
         }
 

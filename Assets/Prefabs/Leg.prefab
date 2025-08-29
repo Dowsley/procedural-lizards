@@ -46,6 +46,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   segmentPrefab: {fileID: 4358471192029684785, guid: d8356b1c342f049ddb6c393229741db1, type: 3}
+  anchor: {fileID: 0}
+  forwardReference: {fileID: 0}
+  width: 0.1
+  length: 1
+  pawRadius: 0.2
+  isRight: 1
+  home: {x: 0, y: 0}
+  threshold: 1.5
+  speed: 2
 --- !u!120 &350326702166877938
 LineRenderer:
   serializedVersion: 2
@@ -70,7 +79,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
