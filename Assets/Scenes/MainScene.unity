@@ -269,6 +269,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: legWidth
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: linkSize
       value: 0.15
       objectReference: {fileID: 0}
@@ -277,9 +281,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: legLength
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: legPrefab
+      value: 
+      objectReference: {fileID: 1755885426823374994, guid: 21f54666c97ea43b6aa768a94c0543e8, type: 3}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: gameCamera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: legStepLift
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: legPawRadius
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: segmentCount
       value: 40
@@ -290,7 +310,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: gradientScrollSpeed
-      value: -0.5
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: colorGradient.ctime0

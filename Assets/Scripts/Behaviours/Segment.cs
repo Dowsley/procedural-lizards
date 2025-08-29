@@ -4,28 +4,30 @@ namespace Behaviours
 {
     public class Segment : MonoBehaviour
     {
+        [Header("References")]
         [SerializeField] private CircleRenderer innerCircleRenderer;
         [SerializeField] private CircleRenderer outerCircleRenderer;
+
+        [Header("Debug Settings")]
+        [SerializeField] private Color outerCircleDebugColor = Color.white;
+        [SerializeField] private Color innerCircleDebugColor = Color.red;
+
+        public void Render(float radius, Color color, bool debug = false)
+        {
+            var fillOuter = !debug;
+            outerCircleRenderer.Render(
+                radius,
+                debug ? outerCircleDebugColor : color,
+                fillOuter
+            );
+            
+            if (debug)
+                innerCircleRenderer.Render(radius * 0.2f, innerCircleDebugColor, true);
+        }
         
-
-        public void DrawCircle(float radius, bool debugInnerCircle = false)
+        public void SetColor(Color color)
         {
-            outerCircleRenderer.SetOutlineEnabled(debugInnerCircle);
-            outerCircleRenderer.SetFillEnabled(!debugInnerCircle);
-            outerCircleRenderer.DrawCircle(radius);
-            if (debugInnerCircle)
-                innerCircleRenderer.DrawCircle(radius * 0.2f);
-        }
-
-        public void Clear()
-        {
-            outerCircleRenderer.Clear();
-            innerCircleRenderer.Clear();
-        }
-
-        public void SetOuterFillColor(Color color)
-        {
-            outerCircleRenderer.SetFillColor(color);
+            outerCircleRenderer.SetColor(color);
         }
 
         public void SetSortingOrder(int order)

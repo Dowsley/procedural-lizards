@@ -10,9 +10,8 @@ namespace Behaviours
         [Header("References")]
         [SerializeField] private Camera gameCamera;
         [SerializeField] private Segment segmentPrefab;
-
-        [Header("Debug")]
-
+        [SerializeField] private Leg legPrefab; 
+        
         [Header("Visuals")]
         [SerializeField] private bool debug = true;
         [SerializeField] private float segmentRadiusSize = 1f;
@@ -25,47 +24,25 @@ namespace Behaviours
         [SerializeField] private float linkSize = 1f;
         // [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
         
+        [Header("Leg")]
+        [SerializeField] private float legWidth = 0.1f;
+        [SerializeField] private float legLength = 1f;
+        [SerializeField] private float legPawRadius = 0.2f;
+        
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 8f;
         
         private readonly List<Segment> _segments = new();
         private LineRenderer _debugLineRenderer;
         private float _gradientOffset;
+        private readonly List<Leg> _legs = new();
         
         private Segment Head => _segments[0]; 
         
         private void Start()
         {
             GetComponents();
-            
-            if (debug)
-            {
-                _debugLineRenderer.enabled = true;
-                _debugLineRenderer.positionCount = segmentCount;
-                _debugLineRenderer.numCornerVertices = 8;
-                _debugLineRenderer.numCapVertices = 8;
-            }
-            else
-            {
-                _debugLineRenderer.positionCount = 0;
-                _debugLineRenderer.enabled = false;
-            }
-            
-            for (int i = 0; i < segmentCount; i++)
-            {
-                var segment = Instantiate(segmentPrefab, transform);
-                segment.transform.position = Vector3.right * linkSize * i;
-                float baseT = (float)i / (segmentCount - 1);
-                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
-                segment.DrawCircle(radius, debug);
-                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                segment.SetOuterFillColor(colorGradient.Evaluate(tColor));
-                
-                // Head on top (the highest order), tail below
-                int order = segmentCount - 1 - i;
-                segment.SetSortingOrder(order);
-                _segments.Add(segment);
-            }
+            Setup();
         }
 
         private void Update()
@@ -91,15 +68,48 @@ namespace Behaviours
                 {
                     float baseT = (float)i / (segmentCount - 1);
                     float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                    _segments[i].SetOuterFillColor(colorGradient.Evaluate(tColor));
+                    _segments[i].SetColor(colorGradient.Evaluate(tColor));
                 }
             }
-            Render();
+            
+            if (debug)
+                UpdateDebugLine();
         }
 
         private void GetComponents()
         {
             _debugLineRenderer = GetComponent<LineRenderer>();
+        }
+
+        private void Setup()
+        {
+            if (debug)
+            {
+                _debugLineRenderer.enabled = true;
+                _debugLineRenderer.positionCount = segmentCount;
+                _debugLineRenderer.numCornerVertices = 8;
+                _debugLineRenderer.numCapVertices = 8;
+            }
+            else
+            {
+                _debugLineRenderer.positionCount = 0;
+                _debugLineRenderer.enabled = false;
+            }
+            
+            for (int i = 0; i < segmentCount; i++)
+            {
+                var segment = Instantiate(segmentPrefab, transform);
+                segment.transform.position = Vector3.right * linkSize * i;
+                float baseT = (float)i / (segmentCount - 1);
+                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
+                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
+                segment.Render(radius, colorGradient.Evaluate(tColor), debug);
+                
+                // Head on top (the highest order), tail below
+                int order = segmentCount - 1 - i;
+                segment.SetSortingOrder(order);
+                _segments.Add(segment);
+            }
         }
 
         private void ResolveConstraints()
@@ -120,12 +130,6 @@ namespace Behaviours
             {
                 _debugLineRenderer.SetPosition(i, _segments[i].transform.position);
             } 
-        }
-
-        private void Render()
-        {
-            if (debug)
-                UpdateDebugLine();
         }
     }
 }
