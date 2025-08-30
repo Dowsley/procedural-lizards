@@ -8,10 +8,14 @@ namespace Behaviours
     [RequireComponent(typeof(LineRenderer))]
     public class Snake : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Camera gameCamera;
+        [Header("Prefab References")]
         [SerializeField] private Segment segmentPrefab;
-        [SerializeField] private Leg legPrefab; 
+        [SerializeField] private Leg legPrefab;
+        
+        [Header("GameObject References")]
+        [SerializeField] private Camera gameCamera;
+        [SerializeField] private CircleRenderer leftEye;
+        [SerializeField] private CircleRenderer rightEye;
         
         [Header("Visuals")]
         [SerializeField] private bool debug = true;
@@ -33,16 +37,25 @@ namespace Behaviours
         [SerializeField] private float legStepThreshold = 0.35f;
         [SerializeField] private float legExtraStrideOffset = 0.5f;
         [SerializeField] private float legStepSpeed = 5f;
+        [SerializeField] private float upperLegSpawnAround = 0.1f;
+        [SerializeField] private float lowerLegSpawnAround = 0.35f;
         
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 8f;
         [SerializeField] private float maxHeadSpeed = 12f;
         
+        [Header("Eyes")]
+        [SerializeField] private float eyeRadius = 2f;
+        [SerializeField] private int spawnEyeAtSegmentIndex = 0;
+        [SerializeField] private float distanceBetweenEyes = 0.5f;
+        [SerializeField] private Color eyeColor = Color.black;
+        [SerializeField] private float eyeHeadwardOffset = 0.1f;
+        
         private readonly List<Segment> _segments = new();
         private LineRenderer _debugLineRenderer;
         private float _gradientOffset;
         
-        private readonly List<Leg> _legs = new(); // upperLeft, lowerLeft, lowerRight, upperRight
+        private readonly List<Leg> _legs = new();
         private Leg UpperLeftLeg => _legs[0];
         private Leg UpperRightLeg => _legs[1];
         private Leg LowerLeftLeg => _legs[2];
@@ -86,8 +99,8 @@ namespace Behaviours
                 _legs.Add(leg);
             }
 
-            int frontIdx = Mathf.Clamp((int)(segmentCount * 0.1f), 0, segmentCount - 2);
-            int backIdx = Mathf.Clamp((int)(segmentCount * 0.35f), 0, segmentCount - 2);
+            int frontIdx = Mathf.Clamp((int)(segmentCount * upperLegSpawnAround), 1, segmentCount - 2);
+            int backIdx = Mathf.Clamp((int)(segmentCount * lowerLegSpawnAround), 1, segmentCount - 2);
 
             UpperLeftLeg.anchor = _segments[frontIdx];
             UpperRightLeg.anchor = _segments[frontIdx];
@@ -106,6 +119,13 @@ namespace Behaviours
 
             foreach (var leg in _legs)
                 leg.Initialize();
+            
+            
+            // Eyes
+            leftEye.SetSortingOrder(9999);
+            rightEye.SetSortingOrder(9999);
+            leftEye.Render(eyeRadius, eyeColor, true);
+            rightEye.Render(eyeRadius, eyeColor, true);
         }
 
         private void Update()
@@ -132,6 +152,7 @@ namespace Behaviours
             ResolveConstraints();
             if (gradientScrollSpeed != 0f)
                 MoveGradient();
+            UpdateEyePositions();
             
             if (debug)
                 UpdateDebugLine();
@@ -167,6 +188,33 @@ namespace Behaviours
             {
                 _debugLineRenderer.SetPosition(i, _segments[i].transform.position);
             } 
+        }
+
+        private void UpdateEyePositions()
+        {
+            int previousSegmentIdx = spawnEyeAtSegmentIndex + 1;
+            
+            var segmentToSpawn = _segments[spawnEyeAtSegmentIndex];
+            var previousSegment = _segments[previousSegmentIdx];
+
+            // Compute headward/forward axis
+            Vector2 a = segmentToSpawn.transform.position;
+            Vector2 b = previousSegment.transform.position;
+            Vector2 dir = b - a;
+            var forward = dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector2.right;
+            var headward = -forward;
+            
+            Vector2 right = new(headward.y, -headward.x);
+            float halfSeparation = distanceBetweenEyes * 0.5f;
+            Vector2 headwardOffset = headward * eyeHeadwardOffset;
+            
+            // Compute eye positions (offset head-ward, then perpendicular separation)
+            Vector2 basePos = a + headwardOffset;
+            Vector2 leftEyePos = basePos - right * halfSeparation;
+            Vector2 rightEyePos = basePos + right * halfSeparation;
+            
+            leftEye.transform.position = leftEyePos;
+            rightEye.transform.position = rightEyePos;
         }
     }
 }
