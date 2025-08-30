@@ -39,7 +39,8 @@ namespace Behaviours
             _lineRenderer.positionCount = 2;
         }
 
-        private void Update()
+        // Manual update I can easily control from parent snake
+        public void Step()
         {
             if (!_initialized)
                 return;

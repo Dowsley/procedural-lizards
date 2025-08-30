@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace Behaviours
 {
@@ -41,6 +42,7 @@ namespace Behaviours
         [SerializeField] private float lowerLegSpawnAround = 0.35f;
         
         [Header("Movement")]
+        public bool active = true;
         [SerializeField] private float moveSpeed = 8f;
         [SerializeField] private float maxHeadSpeed = 12f;
         
@@ -61,7 +63,9 @@ namespace Behaviours
         private Leg LowerLeftLeg => _legs[2];
         private Leg LowerRightLeg => _legs[3];
         
-        private Segment Head => _segments[0]; 
+        private Segment Head => _segments[0];
+
+        private int EyesSortingLayer => segmentCount + 1;
         
         private void Start()
         {
@@ -122,43 +126,28 @@ namespace Behaviours
             
             
             // Eyes
-            leftEye.SetSortingOrder(9999);
-            rightEye.SetSortingOrder(9999);
+            leftEye.SetSortingOrder(EyesSortingLayer);
+            rightEye.SetSortingOrder(EyesSortingLayer);
             leftEye.Render(eyeRadius, eyeColor, true);
             rightEye.Render(eyeRadius, eyeColor, true);
         }
 
         private void Update()
         {
-            Vector2 pointerPos = Pointer.current.position.ReadValue();
-            Vector3 worldPos = gameCamera.ScreenToWorldPoint(
-                new Vector3(pointerPos.x, pointerPos.y, 0f)
-            );
-            worldPos.z = 0f;
+            if (!active)
+                return;
             
-            var currentHeadPos = Head.transform.position;
-            var smoothedTarget = Vector3.Lerp(
-                currentHeadPos,
-                worldPos,
-                moveSpeed * Time.deltaTime
-            );
-            var step = smoothedTarget - currentHeadPos;
-            float maxStep = maxHeadSpeed * Time.deltaTime;
-            if (step.magnitude > maxStep)
-                smoothedTarget = currentHeadPos + step.normalized * maxStep;
+            ComputeNextHeadPos();
+            ResolveSegmentConstraints();
+            
+            UpdateLegs();
+            UpdateEyes();
 
-            Head.transform.position = smoothedTarget;
-            
-            ResolveConstraints();
-            if (gradientScrollSpeed != 0f)
-                MoveGradient();
-            UpdateEyePositions();
-            
-            if (debug)
-                UpdateDebugLine();
+            if (gradientScrollSpeed != 0f) AnimateGradient();
+            if (debug) UpdateDebugLine();
         }
 
-        private void MoveGradient()
+        private void AnimateGradient()
         {
             _gradientOffset = Mathf.Repeat(_gradientOffset + gradientScrollSpeed * Time.deltaTime, 1f);
             for (int i = 0; i < _segments.Count; i++)
@@ -170,7 +159,7 @@ namespace Behaviours
             }
         }
 
-        private void ResolveConstraints()
+        private void ResolveSegmentConstraints()
         {
             for (int i = 1; i < _segments.Count; i++)
             {
@@ -190,7 +179,7 @@ namespace Behaviours
             } 
         }
 
-        private void UpdateEyePositions()
+        private void UpdateEyes()
         {
             int previousSegmentIdx = spawnEyeAtSegmentIndex + 1;
             
@@ -215,6 +204,32 @@ namespace Behaviours
             
             leftEye.transform.position = leftEyePos;
             rightEye.transform.position = rightEyePos;
+        }
+
+        private void ComputeNextHeadPos()
+        {
+            Vector2 pointerPos = Pointer.current.position.ReadValue();
+            Vector3 worldPos = gameCamera.ScreenToWorldPoint(
+                new Vector3(pointerPos.x, pointerPos.y, 0f)
+            );
+            worldPos.z = 0f;
+
+            var currentHeadPos = Head.transform.position;
+            var smoothedTarget = Vector3.Lerp(
+                currentHeadPos,
+                worldPos,
+                moveSpeed * Time.deltaTime
+            );
+            var step = smoothedTarget - currentHeadPos;
+            float maxStep = maxHeadSpeed * Time.deltaTime;
+            if (step.magnitude > maxStep)
+                smoothedTarget = currentHeadPos + step.normalized * maxStep;
+            Head.transform.position = smoothedTarget;
+        }
+        private void UpdateLegs()
+        {
+            foreach (var leg in _legs)
+                leg.Step();
         }
     }
 }
