@@ -8,7 +8,7 @@ Little happy project.
 - [X] Add eyes
 - [X] Add breathing
 - [ ] Better head shape
-- [ ] Add shadow
+- [X] Add shadow
 - [ ] Add frills
 - [ ] Add randomization
 - [ ] Add dancing

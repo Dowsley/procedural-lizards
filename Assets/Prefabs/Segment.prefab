@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1326538222341707375}
   - component: {fileID: 4358471192029684785}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Segment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   innerCircleRenderer: {fileID: 8729176190779761328}
   outerCircleRenderer: {fileID: 2408237885402495350}
+  outerCircleDebugColor: {r: 1, g: 1, b: 1, a: 1}
+  innerCircleDebugColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &5416152122871071616
 GameObject:
   m_ObjectHideFlags: 0
@@ -61,7 +63,7 @@ GameObject:
   - component: {fileID: 7234239717968376352}
   - component: {fileID: 7504798253930669300}
   - component: {fileID: 5298274884989566057}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: OuterCircleRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,9 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fbe2f08936344ee69af7f16d694d53c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 7234239717968376352}
   segments: 100
-  fill: 1
 --- !u!120 &7234239717968376352
 LineRenderer:
   serializedVersion: 2
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 5764368413499527358}
   - component: {fileID: 1171348530190099859}
   - component: {fileID: 7897635062254019256}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: InnerCircleRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -305,9 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fbe2f08936344ee69af7f16d694d53c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 5764368413499527358}
   segments: 100
-  fill: 0
 --- !u!120 &5764368413499527358
 LineRenderer:
   serializedVersion: 2

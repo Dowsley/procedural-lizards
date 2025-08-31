@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1071373417795176664}
   - component: {fileID: 1755885426823374994}
   - component: {fileID: 350326702166877938}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Leg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,6 +52,7 @@ MonoBehaviour:
   length: 1
   pawRadius: 0.2
   isRight: 1
+  extraStrideOffset: 0
   home: {x: 0, y: 0}
   threshold: 1.5
   speed: 2

@@ -42,7 +42,7 @@ namespace Behaviours
         [SerializeField] private float lowerLegSpawnAround = 0.35f;
         
         [Header("Breathing")]
-        [Range(0f, 2f)] [SerializeField] private float breathingSpeed = 1f;
+        [Range(0f, 5f)] [SerializeField] private float breathingSpeed = 1f;
         [Range(0.01f, 0.99f)] [SerializeField] private float breathingMinSizeMult = 0.85f;
         [Range(1f, 2f)] [SerializeField] private float breathingMaxSizeMult = 1f;
         

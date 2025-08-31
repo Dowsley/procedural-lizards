@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6255888792001181118}
   - component: {fileID: 8510697061386917586}
   - component: {fileID: 7164255487387282366}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftEye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -221,7 +221,7 @@ GameObject:
   - component: {fileID: 3610272360170827639}
   - component: {fileID: 5248353419661917925}
   - component: {fileID: 3621256730754238439}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightEye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -429,7 +429,7 @@ GameObject:
   - component: {fileID: 9092169757878244392}
   - component: {fileID: 6186842106957100387}
   - component: {fileID: 3031423215220543858}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Lizard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -538,6 +538,9 @@ MonoBehaviour:
   legStepSpeed: 5
   upperLegSpawnAround: 0.1
   lowerLegSpawnAround: 0.35
+  breathingSpeed: 1
+  breathingMinSizeMult: 0.85
+  breathingMaxSizeMult: 1
   active: 1
   moveSpeed: 4
   maxHeadSpeed: 12
