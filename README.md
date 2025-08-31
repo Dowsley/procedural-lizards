@@ -7,12 +7,15 @@ Little happy project.
 - [X] Add 1-jointed legs
 - [X] Add eyes
 - [X] Add breathing
-- [ ] Better head shape
 - [X] Add shadow
+- [X] Add dancing
+- [ ] Stop making things frame dependant
+- [ ] Experiment with angle-based sway
+- [ ] Better head shape
 - [ ] Add frills
-- [ ] Add randomization
-- [ ] Add dancing
 - [ ] Add interaction
   - [ ] Player
   - [ ] Environment
-
+- [ ] Add randomization
+- [ ] Environment
+- [ ] Chameleon effect with environment

@@ -16,5 +16,10 @@ namespace Behaviours
         {
             _lizard.active = !_lizard.active;
         }
+        
+        public void ToggleDancing(InputAction.CallbackContext context)
+        {
+            _lizard.ToggleDancing();
+        }
     }
 }

@@ -44,5 +44,20 @@ namespace Behaviours
             outerCircleRenderer.SetSortingOrder(order);
             innerCircleRenderer.SetSortingOrder(order + 1);
         }
+
+        /// <summary>
+        /// Sways the segments on local space. Since they're all originally at origin this works.
+        /// </summary>
+        /// <param name="currLocalPos"></param>
+        public void Sway(Vector3 currLocalPos)
+        {
+            outerCircleRenderer.transform.localPosition = currLocalPos;
+            innerCircleRenderer.transform.localPosition = currLocalPos;
+        }
+        
+        public Vector3 GetInnerCircleLocalPos()
+        {
+            return outerCircleRenderer.transform.localPosition;
+        }
     }
 }

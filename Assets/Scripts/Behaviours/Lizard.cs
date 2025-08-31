@@ -23,7 +23,7 @@ namespace Behaviours
         [SerializeField] private float segmentRadiusSize = 1f;
         [SerializeField] private AnimationCurve bodyWidthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0.2f);
         [SerializeField] private Gradient colorGradient = new();
-        [SerializeField] private float gradientScrollSpeed = 0f;
+        [SerializeField] private float gradientScrollSpeedWhenDancing = 0f;
 
         [Header("Chain")]
         [SerializeField] private int segmentCount = 48;
@@ -50,6 +50,14 @@ namespace Behaviours
         public bool active = true;
         [SerializeField] private float moveSpeed = 8f;
         [SerializeField] private float maxHeadSpeed = 12f;
+
+        [Header("Dancing")]
+        [SerializeField] private bool dancing = true;
+        [Range(0f, 20f)] [SerializeField] private float danceSpeed = 1f;
+        [Range(0f, 10f)] [SerializeField] private float danceSwayAmplitude = 1f;
+        [Range(0f, 2f * Mathf.PI)] [SerializeField] private float dancePhasePerSegment = 0.25f; // radians advanced per segment. Max is TAU.
+        [Range(0f, 1f)] [SerializeField] private float lerpColorBackToOriginal = 0.6f;
+        [Range(0f, 1f)] [SerializeField] private float lerpPosBackToOriginal = 0.6f;
         
         [Header("Eyes")]
         [SerializeField] private float eyeRadius = 2f;
@@ -61,6 +69,7 @@ namespace Behaviours
         private readonly List<Segment> _segments = new();
         private LineRenderer _debugLineRenderer;
         private float _gradientOffset;
+        private float _currentGradientScrollSpeed = 0f;
         
         private readonly List<Leg> _legs = new();
         private Leg UpperLeftLeg => _legs[0];
@@ -84,9 +93,8 @@ namespace Behaviours
                 var segment = Instantiate(segmentPrefab, transform);
                 segment.transform.position = Vector3.right * linkSize * i;
                 float baseT = (float)i / (segmentCount - 1);
-                float radius = bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
-                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                var color = colorGradient.Evaluate(tColor);
+                float radius = ComputeSegmentRadius(baseT);
+                var color = ComputeSegmentColor(baseT, _gradientOffset);
                 segment.Render(radius, color, debug);
                 
                 // Head on top (the highest order), tail below
@@ -139,29 +147,64 @@ namespace Behaviours
 
         private void Update()
         {
-            if (gradientScrollSpeed != 0f)
-                AnimateGradient();
             UpdateBreathing();
-            
-            if (!active)
-                return;
-            
-            ComputeNextHeadPos();
-            ResolveSegmentConstraints();
-            UpdateLegs();
+            if (dancing)
+            {
+                AnimateGradient();
+                UpdateDancingSway();
+            }
+            else
+            {
+                LerpSegmentsToOriginal();
+            }
+
+            if (active)
+            {
+                ComputeNextHeadPos();
+                ResolveSegmentConstraints();
+                UpdateLegs();
+            }
+
             UpdateEyes();
             if (debug)
                 UpdateDebugLine();
         }
 
+        // For color and position
+        private void LerpSegmentsToOriginal()
+        {
+            for (int i = 0; i < segmentCount; i++)
+            {
+                var seg = _segments[i];
+                float baseT = (float)i / (segmentCount - 1);
+                
+                var currLocalPos = seg.GetInnerCircleLocalPos();
+                seg.Sway(Vector3.Lerp(currLocalPos, Vector3.zero, lerpPosBackToOriginal));
+
+                var targetColor = ComputeSegmentColor(baseT, 0f);
+                var currColor = seg.GetColor();
+                seg.SetColor(Color.Lerp(currColor, targetColor, lerpColorBackToOriginal));
+            }
+        }
+
+        private void UpdateDancingSway()
+        {
+            float basePhase = Time.time * danceSpeed;
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                float y = ComputeDanceYOffset(i, basePhase);
+                var newPos = Vector3.up * y;
+                _segments[i].Sway(newPos);
+            }
+        }
+
         private void AnimateGradient()
         {
-            _gradientOffset = Mathf.Repeat(_gradientOffset + gradientScrollSpeed * Time.deltaTime, 1f);
+            _gradientOffset = Mathf.Repeat(_gradientOffset + _currentGradientScrollSpeed * Time.deltaTime, 1f);
             for (int i = 0; i < _segments.Count; i++)
             {
                 float baseT = (float)i / (segmentCount - 1);
-                float tColor = Mathf.Repeat(baseT + _gradientOffset, 1f);
-                var color = colorGradient.Evaluate(tColor);
+                var color = ComputeSegmentColor(baseT, _gradientOffset);
                 _segments[i].SetColor(color);
             }
         }
@@ -208,9 +251,26 @@ namespace Behaviours
             Vector2 basePos = a + headwardOffset;
             Vector2 leftEyePos = basePos - right * halfSeparation;
             Vector2 rightEyePos = basePos + right * halfSeparation;
+
+            // Apply dancing sway so eyes follow the head visual offset
+            if (dancing)
+            {
+                float basePhase = Time.time * danceSpeed;
+                float yOffset = ComputeDanceYOffset(spawnEyeAtSegmentIndex, basePhase);
+                leftEyePos.y += yOffset;
+                rightEyePos.y += yOffset;
+            }
             
             leftEye.transform.position = leftEyePos;
             rightEye.transform.position = rightEyePos;
+        }
+
+        private float ComputeDanceYOffset(int segmentIndex, float basePhase)
+        {
+            if (!dancing || Mathf.Approximately(danceSwayAmplitude, 0f))
+                return 0f;
+            float phase = basePhase + segmentIndex * dancePhasePerSegment;
+            return Mathf.Sin(phase) * danceSwayAmplitude;
         }
 
         private void ComputeNextHeadPos()
@@ -251,6 +311,24 @@ namespace Behaviours
             {
                 segment.transform.localScale = newScale;
             }
+        }
+
+        private Color ComputeSegmentColor(float baseT, float gradientOffset)
+        {
+            float tColor = Mathf.Repeat(baseT + gradientOffset, 1f);
+            return colorGradient.Evaluate(tColor);
+        }
+
+        private float ComputeSegmentRadius(float baseT)
+        {
+            return bodyWidthCurve.Evaluate(baseT) * segmentRadiusSize;
+        }
+
+        public void ToggleDancing()
+        {
+            dancing = !dancing;
+            _currentGradientScrollSpeed = dancing ? gradientScrollSpeedWhenDancing : 0f;
+            // It's expected that LerpSegmentsToOriginal will handle the transition back every frame.
         }
     }
 }
