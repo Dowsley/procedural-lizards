@@ -41,6 +41,11 @@ namespace Behaviours
         [SerializeField] private float upperLegSpawnAround = 0.1f;
         [SerializeField] private float lowerLegSpawnAround = 0.35f;
         
+        [Header("Breathing")]
+        [Range(0f, 2f)] [SerializeField] private float breathingSpeed = 1f;
+        [Range(0.01f, 0.99f)] [SerializeField] private float breathingMinSizeMult = 0.85f;
+        [Range(1f, 2f)] [SerializeField] private float breathingMaxSizeMult = 1f;
+        
         [Header("Movement")]
         public bool active = true;
         [SerializeField] private float moveSpeed = 8f;
@@ -134,17 +139,19 @@ namespace Behaviours
 
         private void Update()
         {
+            if (gradientScrollSpeed != 0f)
+                AnimateGradient();
+            UpdateBreathing();
+            
             if (!active)
                 return;
             
             ComputeNextHeadPos();
             ResolveSegmentConstraints();
-            
             UpdateLegs();
             UpdateEyes();
-
-            if (gradientScrollSpeed != 0f) AnimateGradient();
-            if (debug) UpdateDebugLine();
+            if (debug)
+                UpdateDebugLine();
         }
 
         private void AnimateGradient()
@@ -230,6 +237,20 @@ namespace Behaviours
         {
             foreach (var leg in _legs)
                 leg.Step();
+        }
+
+        // Expands and contracts segments to simulate breathing
+        private void UpdateBreathing()
+        {
+            var sinVal = Mathf.Sin(Time.time * breathingSpeed);
+            var mappedSinVal = (sinVal + 1) / 2; // 0..1
+            var newScale = Vector3.one * Mathf.Lerp(breathingMinSizeMult, breathingMaxSizeMult, mappedSinVal);
+            newScale.z = 1f;
+            
+            foreach (var segment in _segments)
+            {
+                segment.transform.localScale = newScale;
+            }
         }
     }
 }
