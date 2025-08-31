@@ -5,16 +5,16 @@ namespace Behaviours
 {
     public class PlayerInputController : MonoBehaviour
     {
-        private Snake _snake;
+        private Lizard _lizard;
         
         private void Start()
         {
-            _snake = GetComponent<Snake>();
+            _lizard = GetComponent<Lizard>();
         }
 
         public void ToggleActive(InputAction.CallbackContext context)
         {
-            _snake.active = !_snake.active;
+            _lizard.active = !_lizard.active;
         }
     }
 }

@@ -622,7 +622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4234751256433485728, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: m_Name
-      value: Snake
+      value: Lizard
       objectReference: {fileID: 0}
     - target: {fileID: 8532957990671618460, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: m_LocalScale.x

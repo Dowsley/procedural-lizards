@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 namespace Behaviours
 {
     [RequireComponent(typeof(LineRenderer))]
-    public class Snake : MonoBehaviour
+    public class Lizard : MonoBehaviour
     {
         [Header("Prefab References")]
         [SerializeField] private Segment segmentPrefab;

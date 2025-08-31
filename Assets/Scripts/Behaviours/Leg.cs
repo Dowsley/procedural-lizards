@@ -39,7 +39,7 @@ namespace Behaviours
             _lineRenderer.positionCount = 2;
         }
 
-        // Manual update I can easily control from parent snake
+        // Manual update I can easily control from parent lizard
         public void Step()
         {
             if (!_initialized)
