@@ -10,7 +10,7 @@ Little happy project.
 - [X] Add shadow
 - [X] Add dancing
 - [ ] Make everything non frame-dependent
-- [ ] Better head shape
+- [X] Better head shape
 - [ ] Add frills
 - [ ] Add interaction
   - [ ] Player
