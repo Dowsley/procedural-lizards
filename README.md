@@ -9,8 +9,7 @@ Little happy project.
 - [X] Add breathing
 - [X] Add shadow
 - [X] Add dancing
-- [ ] Stop making things frame dependant
-- [ ] Experiment with angle-based sway
+- [ ] Make everything non frame-dependent
 - [ ] Better head shape
 - [ ] Add frills
 - [ ] Add interaction
@@ -18,4 +17,7 @@ Little happy project.
   - [ ] Environment
 - [ ] Add randomization
 - [ ] Environment
-- [ ] Chameleon effect with environment
+
+## Random ideas
+- Chameleon effect with environment
+- Experiment with sway relative to angle of each segment
