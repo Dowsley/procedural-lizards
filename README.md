@@ -12,6 +12,7 @@ Little happy project.
 - [ ] Make everything non frame-dependent
 - [X] Better head shape
 - [ ] Add frills
+  - Challenge will be making ellipsises with meshes. Would love to reuse CircleRenderer.
 - [ ] Add interaction
   - [ ] Player
   - [ ] Environment
