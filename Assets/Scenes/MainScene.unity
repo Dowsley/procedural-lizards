@@ -405,6 +405,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: lerpPosBackToOriginal
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: lerpColorBackToOriginal
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: colorGradient.m_NumColorKeys
       value: 6
       objectReference: {fileID: 0}

@@ -56,8 +56,8 @@ namespace Behaviours
         [Range(0f, 20f)] [SerializeField] private float danceSpeed = 1f;
         [Range(0f, 10f)] [SerializeField] private float danceSwayAmplitude = 1f;
         [Range(0f, 2f * Mathf.PI)] [SerializeField] private float dancePhasePerSegment = 0.25f; // radians advanced per segment. Max is TAU.
-        [Range(0f, 1f)] [SerializeField] private float lerpColorBackToOriginal = 0.6f;
-        [Range(0f, 1f)] [SerializeField] private float lerpPosBackToOriginal = 0.6f;
+        [Range(0f, 20f)] [SerializeField] private float lerpColorBackToOriginal = 0.6f;
+        [Range(0f, 20f)] [SerializeField] private float lerpPosBackToOriginal = 0.6f;
         
         [Header("Eyes")]
         [SerializeField] private float eyeRadius = 2f;
@@ -173,17 +173,19 @@ namespace Behaviours
         // For color and position
         private void LerpSegmentsToOriginal()
         {
+            float posLerpT = 1f - Mathf.Exp(-lerpPosBackToOriginal * Time.deltaTime);
+            float colorLerpT = 1f - Mathf.Exp(-lerpColorBackToOriginal * Time.deltaTime);
             for (int i = 0; i < segmentCount; i++)
             {
                 var seg = _segments[i];
                 float baseT = (float)i / (segmentCount - 1);
                 
                 var currLocalPos = seg.GetInnerCircleLocalPos();
-                seg.Sway(Vector3.Lerp(currLocalPos, Vector3.zero, lerpPosBackToOriginal));
+                seg.Sway(Vector3.Lerp(currLocalPos, Vector3.zero, posLerpT));
 
                 var targetColor = ComputeSegmentColor(baseT, 0f);
                 var currColor = seg.GetColor();
-                seg.SetColor(Color.Lerp(currColor, targetColor, lerpColorBackToOriginal));
+                seg.SetColor(Color.Lerp(currColor, targetColor, colorLerpT));
             }
         }
 
