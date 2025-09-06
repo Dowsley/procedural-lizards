@@ -290,11 +290,8 @@ namespace Behaviours
             worldPos.z = 0f;
 
             var currentHeadPos = Head.transform.position;
-            var smoothedTarget = Vector3.Lerp(
-                currentHeadPos,
-                worldPos,
-                moveSpeed * Time.deltaTime
-            );
+            float followT = 1f - Mathf.Exp(-moveSpeed * Time.deltaTime);
+            var smoothedTarget = Vector3.Lerp(currentHeadPos, worldPos, followT);
             var step = smoothedTarget - currentHeadPos;
             float maxStep = maxHeadSpeed * Time.deltaTime;
             if (step.magnitude > maxStep)
