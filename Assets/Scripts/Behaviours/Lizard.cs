@@ -247,6 +247,10 @@ namespace Behaviours
             float halfSeparation = distanceBetweenEyes * 0.5f;
             Vector2 headwardOffset = headward * eyeHeadwardOffset;
             
+            // Rotate eyes to match body orientation
+            float angleDeg = Vector2.SignedAngle(Vector2.right, right);
+            Quaternion rotation = Quaternion.AngleAxis(angleDeg, Vector3.forward);
+            
             // Compute eye positions (offset head-ward, then perpendicular separation)
             Vector2 basePos = a + headwardOffset;
             Vector2 leftEyePos = basePos - right * halfSeparation;
@@ -263,6 +267,8 @@ namespace Behaviours
             
             leftEye.transform.position = leftEyePos;
             rightEye.transform.position = rightEyePos;
+            leftEye.transform.rotation = rotation;
+            rightEye.transform.rotation = rotation;
         }
 
         private float ComputeDanceYOffset(int segmentIndex, float basePhase)

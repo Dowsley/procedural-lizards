@@ -12,13 +12,13 @@ Little happy project.
 - [ ] Make everything non frame-dependent
 - [X] Better head shape
 - [ ] Add frills
-  - Challenge will be making ellipsises with meshes. Would love to reuse CircleRenderer.
-- [ ] Add interaction
-  - [ ] Player
-  - [ ] Environment
+- [ ] Add player interaction
+    - [ ] Clicking on it makes it happy (add the happy eyes)
+- [ ] Basic Environment
+- [ ] Add cute sounds
 - [ ] Add randomization
-- [ ] Environment
+- [ ] Add interaction with the environment
 
 ## Random ideas
 - Chameleon effect with environment
-- Experiment with sway relative to angle of each segment
+- Experiment with sway relative to an angle of each segment
