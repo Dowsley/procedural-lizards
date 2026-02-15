@@ -88,12 +88,12 @@ namespace Behaviours
                     int next = current + lonSegments + 1;
 
                     triangles[ti++] = current;
-                    triangles[ti++] = next;
                     triangles[ti++] = current + 1;
+                    triangles[ti++] = next;
 
                     triangles[ti++] = current + 1;
-                    triangles[ti++] = next;
                     triangles[ti++] = next + 1;
+                    triangles[ti++] = next;
                 }
             }
 

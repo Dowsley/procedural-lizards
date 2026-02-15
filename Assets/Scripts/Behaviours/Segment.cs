@@ -25,6 +25,7 @@ namespace Behaviours
                 fillOuter
             );
 
+            innerSphereRenderer.gameObject.SetActive(debug);
             if (debug)
                 innerSphereRenderer.Render(radius * 0.2f, innerCircleDebugColor, true);
         }
