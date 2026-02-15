@@ -70,7 +70,7 @@ namespace Behaviours
             var worldPos = outerSphereRenderer.transform.position;
             shadowRenderer.transform.position = new Vector3(worldPos.x, 0.01f, worldPos.z);
 
-            var scale = outerSphereRenderer.transform.lossyScale;
+            var scale = outerSphereRenderer.transform.localScale;
             shadowRenderer.transform.localScale = new Vector3(scale.x, 0.01f, scale.z);
         }
     }

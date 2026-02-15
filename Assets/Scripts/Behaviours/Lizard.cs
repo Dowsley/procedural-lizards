@@ -188,10 +188,22 @@ namespace Behaviours
             float basePhase = Time.time * danceSpeed;
             for (int i = 0; i < _segments.Count; i++)
             {
-                float y = ComputeDanceYOffset(i, basePhase);
-                var newPos = Vector3.up * y;
-                _segments[i].Sway(newPos);
+                float amount = ComputeSwayAmount(i, basePhase);
+                Vector3 perp = ComputeSegmentPerpendicular(i);
+                _segments[i].Sway(perp * amount);
             }
+        }
+
+        private Vector3 ComputeSegmentPerpendicular(int i)
+        {
+            Vector3 a = _segments[Mathf.Max(i - 1, 0)].transform.position;
+            Vector3 b = _segments[Mathf.Min(i + 1, _segments.Count - 1)].transform.position;
+            Vector3 dir = (b - a);
+            dir.y = 0f;
+            if (dir.sqrMagnitude < Mathf.Epsilon)
+                return Vector3.right;
+            dir.Normalize();
+            return new Vector3(dir.z, 0f, -dir.x);
         }
 
         private void AnimateGradient()
@@ -260,9 +272,11 @@ namespace Behaviours
             if (dancing)
             {
                 float basePhase = Time.time * danceSpeed;
-                float yOffset = ComputeDanceYOffset(spawnEyeAtSegmentIndex, basePhase);
-                leftEyePos.y += yOffset;
-                rightEyePos.y += yOffset;
+                float amount = ComputeSwayAmount(spawnEyeAtSegmentIndex, basePhase);
+                Vector3 perp = ComputeSegmentPerpendicular(spawnEyeAtSegmentIndex);
+                Vector3 eyeSway = perp * amount;
+                leftEyePos += eyeSway;
+                rightEyePos += eyeSway;
             }
 
             leftEye.transform.position = leftEyePos;
@@ -271,7 +285,7 @@ namespace Behaviours
             rightEye.transform.rotation = rotation;
         }
 
-        private float ComputeDanceYOffset(int segmentIndex, float basePhase)
+        private float ComputeSwayAmount(int segmentIndex, float basePhase)
         {
             if (!dancing || Mathf.Approximately(danceSwayAmplitude, 0f))
                 return 0f;
