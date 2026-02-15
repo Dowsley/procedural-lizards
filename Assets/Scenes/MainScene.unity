@@ -119,6 +119,19 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!134 &460862246
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,7 +214,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.22352941, g: 0.29803923, b: 0.3529412, a: 0}
+  m_BackGroundColor: {r: 0.53, g: 0.81, b: 0.92, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -224,7 +237,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 35
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -270,7 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Behaviours.CameraFollow
   target: {fileID: 0}
-  offset: {x: 0, y: 12, z: -8}
+  offset: {x: 0, y: 20, z: -14}
   smoothSpeed: 5
 --- !u!1001 &540941287
 PrefabInstance:
@@ -289,6 +302,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 631847655}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: eyeRadius
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: gameCamera
       value: 
       objectReference: {fileID: 519420031}
@@ -298,7 +315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: distanceBetweenEyes
-      value: 0.49
+      value: 0.51
       objectReference: {fileID: 0}
     - target: {fileID: 4092541285772494340, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: lowerLegSpawnAround
@@ -580,6 +597,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lizard
       objectReference: {fileID: 0}
+    - target: {fileID: 5059324016637897829, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059324016637897829, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059324016637897829, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6196637295630226047, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6196637295630226047, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6196637295630226047, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8532957990671618460, guid: 026a5f680ccd54d1aa371fadd4702a62, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -633,7 +674,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fbe2f08936344ee69af7f16d694d53c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1640820fa3c9240de95a4edf671ec498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1258562481
@@ -662,7 +703,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1258562481}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 460862246}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -702,7 +743,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d2a74672725ed44dab09b0e31a18fbe7, type: 2}
+  - {fileID: 2100000, guid: 6f0bca19766144fe28aa9f199af5dc0b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -757,7 +798,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fbe2f08936344ee69af7f16d694d53c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1640820fa3c9240de95a4edf671ec498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807

@@ -12,6 +12,8 @@ namespace Behaviours
 
         private static Mesh _sharedSphereMesh;
 
+        [SerializeField] private float radius = 0.5f;
+
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MaterialPropertyBlock _propBlock;
@@ -28,10 +30,21 @@ namespace Behaviours
             _meshFilter.sharedMesh = _sharedSphereMesh;
         }
 
-        public void Render(float radius, Color color, bool fill = false)
+        private void OnValidate()
+        {
+            ApplyRadius();
+        }
+
+        public void Render(float newRadius, Color color, bool fill = false)
+        {
+            radius = newRadius;
+            ApplyRadius();
+            SetColor(color);
+        }
+
+        private void ApplyRadius()
         {
             transform.localScale = Vector3.one * (radius * 2f);
-            SetColor(color);
         }
 
         public void SetSortingOrder(int order)
