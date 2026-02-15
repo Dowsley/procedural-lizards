@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DropInShadow
-  m_Shader: {fileID: 4800000, guid: afb2fb3217c464be181b693b8c8f9b39, type: 3}
+  m_Name: SokPopUnlitMat
+  m_Shader: {fileID: 4800000, guid: 352b4f76859124a148fc966b6355c911, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -44,9 +44,8 @@ Material:
     - _EnableExternalAlpha: 0
     - _ZWrite: 0
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.40392157}
-    - _WorldOffset: {r: 0.07, g: -0.15, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

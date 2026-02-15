@@ -5,8 +5,9 @@ namespace Behaviours
     public class Segment : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private CircleRenderer innerCircleRenderer;
-        [SerializeField] private CircleRenderer outerCircleRenderer;
+        [SerializeField] private SphereRenderer innerSphereRenderer;
+        [SerializeField] private SphereRenderer outerSphereRenderer;
+        [SerializeField] private SphereRenderer shadowRenderer;
 
         [Header("Debug Settings")]
         [SerializeField] private Color outerCircleDebugColor = Color.white;
@@ -18,20 +19,20 @@ namespace Behaviours
         {
             _color = color;
             var fillOuter = !debug;
-            outerCircleRenderer.Render(
+            outerSphereRenderer.Render(
                 radius,
                 debug ? outerCircleDebugColor : color,
                 fillOuter
             );
-            
+
             if (debug)
-                innerCircleRenderer.Render(radius * 0.2f, innerCircleDebugColor, true);
+                innerSphereRenderer.Render(radius * 0.2f, innerCircleDebugColor, true);
         }
-        
+
         public void SetColor(Color newColor)
         {
             _color = newColor;
-            outerCircleRenderer.SetColor(newColor);
+            outerSphereRenderer.SetColor(newColor);
         }
 
         public Color GetColor()
@@ -41,23 +42,35 @@ namespace Behaviours
 
         public void SetSortingOrder(int order)
         {
-            outerCircleRenderer.SetSortingOrder(order);
-            innerCircleRenderer.SetSortingOrder(order + 1);
+            // No-op: depth buffer handles ordering in 3D
         }
 
         /// <summary>
         /// Sways the segments on local space. Since they're all originally at origin this works.
         /// </summary>
-        /// <param name="currLocalPos"></param>
         public void Sway(Vector3 currLocalPos)
         {
-            outerCircleRenderer.transform.localPosition = currLocalPos;
-            innerCircleRenderer.transform.localPosition = currLocalPos;
+            outerSphereRenderer.transform.localPosition = currLocalPos;
+            innerSphereRenderer.transform.localPosition = currLocalPos;
+            if (shadowRenderer != null)
+                shadowRenderer.transform.localPosition = currLocalPos;
         }
-        
+
         public Vector3 GetInnerCircleLocalPos()
         {
-            return outerCircleRenderer.transform.localPosition;
+            return outerSphereRenderer.transform.localPosition;
+        }
+
+        public void UpdateShadow()
+        {
+            if (shadowRenderer == null)
+                return;
+
+            var worldPos = outerSphereRenderer.transform.position;
+            shadowRenderer.transform.position = new Vector3(worldPos.x, 0.01f, worldPos.z);
+
+            var scale = outerSphereRenderer.transform.lossyScale;
+            shadowRenderer.transform.localScale = new Vector3(scale.x, 0.01f, scale.z);
         }
     }
 }

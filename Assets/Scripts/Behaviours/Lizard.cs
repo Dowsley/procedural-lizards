@@ -1,23 +1,20 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace Behaviours
 {
-    [RequireComponent(typeof(LineRenderer))]
     public class Lizard : MonoBehaviour
     {
         [Header("Prefab References")]
         [SerializeField] private Segment segmentPrefab;
         [SerializeField] private Leg legPrefab;
-        
+
         [Header("GameObject References")]
         [SerializeField] private Camera gameCamera;
-        [SerializeField] private CircleRenderer leftEye;
-        [SerializeField] private CircleRenderer rightEye;
-        
+        [SerializeField] private SphereRenderer leftEye;
+        [SerializeField] private SphereRenderer rightEye;
+
         [Header("Visuals")]
         [SerializeField] private bool debug = true;
         [SerializeField] private float segmentRadiusSize = 1f;
@@ -28,10 +25,9 @@ namespace Behaviours
         [Header("Chain")]
         [SerializeField] private int segmentCount = 48;
         [SerializeField] private float linkSize = 1f;
-        // [SerializeField] private float angleConstraint = Mathf.PI / 8; // 22 degrees
-        
+
         [Header("Leg")]
-        [SerializeField] private float lowerLegRatio = 0.9f; // Compared to upper
+        [SerializeField] private float lowerLegRatio = 0.9f;
         [SerializeField] private float legWidth = 0.1f;
         [SerializeField] private float legLength = 1f;
         [SerializeField] private float legPawRadius = 0.2f;
@@ -40,12 +36,12 @@ namespace Behaviours
         [SerializeField] private float legStepSpeed = 5f;
         [SerializeField] private float upperLegSpawnAround = 0.1f;
         [SerializeField] private float lowerLegSpawnAround = 0.35f;
-        
+
         [Header("Breathing")]
         [Range(0f, 5f)] [SerializeField] private float breathingSpeed = 1f;
         [Range(0.01f, 0.99f)] [SerializeField] private float breathingMinSizeMult = 0.85f;
         [Range(1f, 2f)] [SerializeField] private float breathingMaxSizeMult = 1f;
-        
+
         [Header("Movement")]
         public bool active = true;
         [SerializeField] private float moveSpeed = 8f;
@@ -55,38 +51,33 @@ namespace Behaviours
         [SerializeField] private bool dancing = true;
         [Range(0f, 20f)] [SerializeField] private float danceSpeed = 1f;
         [Range(0f, 10f)] [SerializeField] private float danceSwayAmplitude = 1f;
-        [Range(0f, 2f * Mathf.PI)] [SerializeField] private float dancePhasePerSegment = 0.25f; // radians advanced per segment. Max is TAU.
+        [Range(0f, 2f * Mathf.PI)] [SerializeField] private float dancePhasePerSegment = 0.25f;
         [Range(0f, 20f)] [SerializeField] private float lerpColorBackToOriginal = 0.6f;
         [Range(0f, 20f)] [SerializeField] private float lerpPosBackToOriginal = 0.6f;
-        
+
         [Header("Eyes")]
         [SerializeField] private float eyeRadius = 2f;
         [SerializeField] private int spawnEyeAtSegmentIndex = 0;
         [SerializeField] private float distanceBetweenEyes = 0.5f;
         [SerializeField] private Color eyeColor = Color.black;
         [SerializeField] private float eyeHeadwardOffset = 0.1f;
-        
+
         private readonly List<Segment> _segments = new();
-        private LineRenderer _debugLineRenderer;
         private float _gradientOffset;
         private float _currentGradientScrollSpeed = 0f;
-        
+
         private readonly List<Leg> _legs = new();
         private Leg UpperLeftLeg => _legs[0];
         private Leg UpperRightLeg => _legs[1];
         private Leg LowerLeftLeg => _legs[2];
         private Leg LowerRightLeg => _legs[3];
-        
+
         private Segment Head => _segments[0];
 
-        private int EyesSortingLayer => segmentCount + 1;
-        
+        private readonly Plane _groundPlane = new(Vector3.up, Vector3.zero);
+
         private void Start()
         {
-            _debugLineRenderer = GetComponent<LineRenderer>();
-            _debugLineRenderer.enabled = debug;
-            _debugLineRenderer.positionCount = debug ? segmentCount : 0;
-            
             // Segments
             for (int i = 0; i < segmentCount; i++)
             {
@@ -96,7 +87,7 @@ namespace Behaviours
                 float radius = ComputeSegmentRadius(baseT);
                 var color = ComputeSegmentColor(baseT, _gradientOffset);
                 segment.Render(radius, color, debug);
-                
+
                 // Head on top (the highest order), tail below
                 int order = segmentCount - 1 - i;
                 segment.SetSortingOrder(order);
@@ -108,7 +99,7 @@ namespace Behaviours
             {
                 var leg = Instantiate(legPrefab, transform);
                 leg.width = legWidth;
-                leg.length = i < 2 ? legLength : legLength*lowerLegRatio;
+                leg.length = i < 2 ? legLength : legLength * lowerLegRatio;
                 leg.pawRadius = legPawRadius;
                 leg.threshold = legStepThreshold;
                 leg.speed = legStepSpeed;
@@ -136,11 +127,15 @@ namespace Behaviours
 
             foreach (var leg in _legs)
                 leg.Initialize();
-            
-            
+
+            // Camera follow — target the head segment (created at runtime)
+            var cameraFollow = gameCamera.GetComponent<CameraFollow>();
+            if (cameraFollow != null)
+                cameraFollow.target = Head.transform;
+
             // Eyes
-            leftEye.SetSortingOrder(EyesSortingLayer);
-            rightEye.SetSortingOrder(EyesSortingLayer);
+            leftEye.SetSortingOrder(0);
+            rightEye.SetSortingOrder(0);
             leftEye.Render(eyeRadius, eyeColor, true);
             rightEye.Render(eyeRadius, eyeColor, true);
         }
@@ -166,8 +161,7 @@ namespace Behaviours
             }
 
             UpdateEyes();
-            if (debug)
-                UpdateDebugLine();
+            UpdateShadows();
         }
 
         // For color and position
@@ -179,7 +173,7 @@ namespace Behaviours
             {
                 var seg = _segments[i];
                 float baseT = (float)i / (segmentCount - 1);
-                
+
                 var currLocalPos = seg.GetInnerCircleLocalPos();
                 seg.Sway(Vector3.Lerp(currLocalPos, Vector3.zero, posLerpT));
 
@@ -217,46 +211,50 @@ namespace Behaviours
             {
                 _segments[i].transform.position = Utils.Constraints.BasicDistanceConstraint(
                     _segments[i].transform.position,
-                    _segments[i-1].transform.position,
+                    _segments[i - 1].transform.position,
                     linkSize
                 );
             }
         }
 
-        private void UpdateDebugLine()
+        private void UpdateShadows()
         {
-            for (int i = 0; i < _segments.Count; i++)
+            foreach (var segment in _segments)
             {
-                _debugLineRenderer.SetPosition(i, _segments[i].transform.position);
-            } 
+                segment.UpdateShadow();
+            }
         }
 
         private void UpdateEyes()
         {
             int previousSegmentIdx = spawnEyeAtSegmentIndex + 1;
-            
+
             var segmentToSpawn = _segments[spawnEyeAtSegmentIndex];
             var previousSegment = _segments[previousSegmentIdx];
 
-            // Compute headward/forward axis
-            Vector2 a = segmentToSpawn.transform.position;
-            Vector2 b = previousSegment.transform.position;
-            Vector2 dir = b - a;
-            var forward = dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector2.right;
+            // Compute headward/forward axis on XZ plane
+            Vector3 a = segmentToSpawn.transform.position;
+            Vector3 b = previousSegment.transform.position;
+            Vector3 dir = b - a;
+            dir.y = 0f;
+            var forward = dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector3.right;
             var headward = -forward;
-            
-            Vector2 right = new(headward.y, -headward.x);
+
+            Vector3 right = new(headward.z, 0f, -headward.x);
             float halfSeparation = distanceBetweenEyes * 0.5f;
-            Vector2 headwardOffset = headward * eyeHeadwardOffset;
-            
+            Vector3 headwardOffset = headward * eyeHeadwardOffset;
+
             // Rotate eyes to match body orientation
-            float angleDeg = Vector2.SignedAngle(Vector2.right, right);
-            Quaternion rotation = Quaternion.AngleAxis(angleDeg, Vector3.forward);
-            
+            float angleDeg = Vector2.SignedAngle(Vector2.right, new Vector2(right.x, right.z));
+            Quaternion rotation = Quaternion.AngleAxis(angleDeg, Vector3.up);
+
             // Compute eye positions (offset head-ward, then perpendicular separation)
-            Vector2 basePos = a + headwardOffset;
-            Vector2 leftEyePos = basePos - right * halfSeparation;
-            Vector2 rightEyePos = basePos + right * halfSeparation;
+            // Elevate eyes above body surface
+            float eyeElevation = ComputeSegmentRadius((float)spawnEyeAtSegmentIndex / (segmentCount - 1))
+                                 * segmentRadiusSize * 0.5f;
+            Vector3 basePos = a + headwardOffset + Vector3.up * eyeElevation;
+            Vector3 leftEyePos = basePos - right * halfSeparation;
+            Vector3 rightEyePos = basePos + right * halfSeparation;
 
             // Apply dancing sway so eyes follow the head visual offset
             if (dancing)
@@ -266,7 +264,7 @@ namespace Behaviours
                 leftEyePos.y += yOffset;
                 rightEyePos.y += yOffset;
             }
-            
+
             leftEye.transform.position = leftEyePos;
             rightEye.transform.position = rightEyePos;
             leftEye.transform.rotation = rotation;
@@ -284,10 +282,19 @@ namespace Behaviours
         private void ComputeNextHeadPos()
         {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
-            Vector3 worldPos = gameCamera.ScreenToWorldPoint(
-                new Vector3(pointerPos.x, pointerPos.y, 0f)
-            );
-            worldPos.z = 0f;
+            Ray ray = gameCamera.ScreenPointToRay(new Vector3(pointerPos.x, pointerPos.y, 0f));
+
+            Vector3 worldPos;
+            if (_groundPlane.Raycast(ray, out float enter))
+            {
+                worldPos = ray.GetPoint(enter);
+            }
+            else
+            {
+                worldPos = Head.transform.position;
+            }
+
+            worldPos.y = 0f;
 
             var currentHeadPos = Head.transform.position;
             float followT = 1f - Mathf.Exp(-moveSpeed * Time.deltaTime);
@@ -298,6 +305,7 @@ namespace Behaviours
                 smoothedTarget = currentHeadPos + step.normalized * maxStep;
             Head.transform.position = smoothedTarget;
         }
+
         private void UpdateLegs()
         {
             foreach (var leg in _legs)
@@ -310,8 +318,7 @@ namespace Behaviours
             var sinVal = Mathf.Sin(Time.time * breathingSpeed);
             var mappedSinVal = (sinVal + 1) / 2; // 0..1
             var newScale = Vector3.one * Mathf.Lerp(breathingMinSizeMult, breathingMaxSizeMult, mappedSinVal);
-            newScale.z = 1f;
-            
+
             foreach (var segment in _segments)
             {
                 segment.transform.localScale = newScale;

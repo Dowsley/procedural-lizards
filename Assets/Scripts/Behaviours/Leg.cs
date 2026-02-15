@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Behaviours
 {
@@ -7,11 +6,11 @@ namespace Behaviours
     public class Leg : MonoBehaviour
     {
         [SerializeField] private Segment segmentPrefab;
-        
+
         [Header("References")]
         public Segment anchor;
         public Segment forwardReference;
-        
+
         [Header("Setup")]
         public float width = 0.1f;
         public float length = 1f;
@@ -22,14 +21,14 @@ namespace Behaviours
         public float extraStrideOffset = 0f;
 
         [Header("Step")]
-        public Vector2 home;
+        public Vector3 home;
         public float threshold = 1.5f;
         public float speed = 2f;
 
         // Runtime
         private LineRenderer _lineRenderer;
         private Segment _pawSegment;
-        private Vector2 _currentHome;
+        private Vector3 _currentHome;
         private bool _initialized;
 
         private void Awake()
@@ -44,20 +43,21 @@ namespace Behaviours
         {
             if (!_initialized)
                 return;
-            
+
             SetColor(anchor.GetColor());
-            
+
             // Compute body direction using the next segment (accounts for body angle)
-            Vector2 forward = ComputeForward();
-            Vector2 right = new(forward.y, -forward.x);
-            Vector2 headward = -forward;
+            Vector3 forward = ComputeForward();
+            Vector3 right = new(forward.z, 0f, -forward.x);
+            Vector3 headward = -forward;
             float sideSign = isRight ? 1f : -1f;
 
-            Vector2 anchorPos = anchor.transform.position;
-            Vector2 nominalHome = anchorPos + right * (sideSign * length) + headward * extraStrideOffset;
+            Vector3 anchorPos = anchor.transform.position;
+            Vector3 nominalHome = anchorPos + right * (sideSign * length) + headward * extraStrideOffset;
+            nominalHome.y = 0f;
 
             // Trigger a step only when the paw lags behind the anchor along the headward axis
-            float headwardProj = Vector2.Dot((Vector2)_pawSegment.transform.position - anchorPos, headward);
+            float headwardProj = Vector3.Dot(_pawSegment.transform.position - anchorPos, headward);
             if (headwardProj < -threshold)
                 _currentHome = nominalHome;
 
@@ -81,13 +81,14 @@ namespace Behaviours
                 return;
 
             // Compute initial home based on current body orientation
-            Vector2 forward = ComputeForward();
-            Vector2 right = new(forward.y, -forward.x);
-            Vector2 headward = -forward;
+            Vector3 forward = ComputeForward();
+            Vector3 right = new(forward.z, 0f, -forward.x);
+            Vector3 headward = -forward;
             float sideSign = isRight ? 1f : -1f;
 
-            Vector2 anchorPos = anchor.transform.position;
-            Vector2 nominalHome = anchorPos + right * (sideSign * length) + headward * extraStrideOffset;
+            Vector3 anchorPos = anchor.transform.position;
+            Vector3 nominalHome = anchorPos + right * (sideSign * length) + headward * extraStrideOffset;
+            nominalHome.y = 0f;
 
             _currentHome = nominalHome;
             _pawSegment.transform.position = _currentHome;
@@ -100,7 +101,7 @@ namespace Behaviours
 
             _initialized = true;
         }
-        
+
         public void SetColor(Color color)
         {
             _pawSegment.SetColor(color);
@@ -108,15 +109,16 @@ namespace Behaviours
             _lineRenderer.endColor = color;
         }
 
-        private Vector2 ComputeForward()
+        private Vector3 ComputeForward()
         {
             if (!forwardReference)
-                return Vector2.right;
-            
-            Vector2 a = anchor.transform.position;
-            Vector2 b = forwardReference.transform.position;
-            Vector2 dir = b - a;
-            return dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector2.right;
+                return Vector3.right;
+
+            Vector3 a = anchor.transform.position;
+            Vector3 b = forwardReference.transform.position;
+            Vector3 dir = b - a;
+            dir.y = 0f;
+            return dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector3.right;
         }
     }
 }
