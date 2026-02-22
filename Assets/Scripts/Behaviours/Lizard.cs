@@ -88,9 +88,6 @@ namespace Behaviours
                 var color = ComputeSegmentColor(baseT, _gradientOffset);
                 segment.Render(radius, color, debug);
 
-                // Head on top (the highest order), tail below
-                int order = segmentCount - 1 - i;
-                segment.SetSortingOrder(order);
                 _segments.Add(segment);
             }
 
@@ -134,8 +131,6 @@ namespace Behaviours
                 cameraFollow.target = Head.transform;
 
             // Eyes
-            leftEye.SetSortingOrder(0);
-            rightEye.SetSortingOrder(0);
             leftEye.Render(eyeRadius, eyeColor, true);
             rightEye.Render(eyeRadius, eyeColor, true);
         }

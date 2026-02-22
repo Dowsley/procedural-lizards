@@ -10,7 +10,7 @@ namespace Behaviours
 
         private void LateUpdate()
         {
-            if (target == null)
+            if (!target)
                 return;
 
             Vector3 desiredPosition = target.position + offset;

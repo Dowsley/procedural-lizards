@@ -41,11 +41,6 @@ namespace Behaviours
             return _color;
         }
 
-        public void SetSortingOrder(int order)
-        {
-            // No-op: depth buffer handles ordering in 3D
-        }
-
         /// <summary>
         /// Sways the segments on local space. Since they're all originally at origin this works.
         /// </summary>
@@ -53,7 +48,7 @@ namespace Behaviours
         {
             outerSphereRenderer.transform.localPosition = currLocalPos;
             innerSphereRenderer.transform.localPosition = currLocalPos;
-            if (shadowRenderer != null)
+            if (shadowRenderer)
                 shadowRenderer.transform.localPosition = currLocalPos;
         }
 
@@ -64,7 +59,7 @@ namespace Behaviours
 
         public void UpdateShadow()
         {
-            if (shadowRenderer == null)
+            if (!shadowRenderer)
                 return;
 
             var worldPos = outerSphereRenderer.transform.position;

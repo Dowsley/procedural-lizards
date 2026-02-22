@@ -47,11 +47,6 @@ namespace Behaviours
             transform.localScale = Vector3.one * (radius * 2f);
         }
 
-        public void SetSortingOrder(int order)
-        {
-            // No-op: depth buffer handles ordering in 3D
-        }
-
         public void SetColor(Color color)
         {
             if (_propBlock == null)
